@@ -19,6 +19,7 @@ const initialPrompt = () => {
             ],
         })
         .then((userChoice) => {
+            console.log(userChoice);
             return userChoice;
         });
 };
@@ -58,4 +59,28 @@ const updateRole = () => {
     console.log('Update an employee role');
 };
 
-initialPrompt();
+initialPrompt().then((userChoice) => {
+    switch (userChoice.mainMenuChoice) {
+        case 'View all departments':
+            viewDeps();
+            break;
+        case 'View all roles':
+            viewRoles();
+            break;
+        case 'View all employees':
+            viewEmployees();
+            break;
+        case 'Add a department':
+            addDep();
+            break;
+        case 'Add a role':
+            addRole();
+            break;
+        case 'Add an employee':
+            addEmployee();
+            break;
+        case 'Update an employee role':
+            updateRole();
+            break;
+    }
+});
