@@ -2,7 +2,26 @@
 require('dotenv').config();
 const inquirer = require('inquirer');
 const db = require('./db/connection');
-const { getDeps, getRoles, getEmployees } = require('./jsModules/getters');
+const {
+    getDepartments,
+    getRoles,
+    getEmployees,
+} = require('./jsModules/getters');
+const { addDepartment, addRole, addEmployee } = require('./jsModules/posters');
+const employeeRoles = [
+    'CEO',
+    'COO',
+    'Head of Development',
+    'HR Head',
+    'Hiring Manager',
+    'Arbitrator',
+    'HTML/CSS Senior Dev',
+    'HTML/CSS Junior Dev',
+    'JS/Express Senior Dev',
+    'JS/Express Junior Dev',
+    'System Administrator',
+    'Network Administrator',
+];
 
 // Main menu/Initial prompt
 const initialPrompt = () => {
@@ -28,8 +47,8 @@ const initialPrompt = () => {
 };
 
 // View all departments
-const viewDeps = () => {
-    getDeps();
+const viewDepartments = () => {
+    getDepartments();
 };
 
 // View all roles
@@ -43,18 +62,76 @@ const viewEmployees = () => {
 };
 
 // Add a department
-const addDep = () => {
-    console.log('Add a department');
+const addDepartmentPrompt = () => {
+    return inquirer
+        .prompt({
+            type: 'input',
+            name: 'name',
+            message: 'Please enter the name of the department:',
+        })
+        .then((response) => {
+            addDepartment(response);
+        });
 };
 
 // Add a role
-const addRole = () => {
-    console.log('Add a role');
+const addRolePrompt = () => {
+    return inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'name',
+                message: 'Please enter the name of the role:',
+            },
+            {
+                type: 'input',
+                name: 'salary',
+                message: "Please enter the role's salary (e.g., 42000):",
+            },
+            {
+                type: 'list',
+                name: 'department',
+                message:
+                    'Please select the department to which the role belongs:',
+                choices: [1],
+            },
+        ])
+        .then((response) => {
+            console.log(response);
+            addRole(response);
+        });
 };
 
 // Add an employee
-const addEmployee = () => {
-    console.log('Add an employee');
+const addEmployeePrompt = () => {
+    return inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'firstName',
+                message: "Please enter the employee's first name:",
+            },
+            {
+                type: 'input',
+                name: 'lastName',
+                message: "Please enter the employee's last name:",
+            },
+            {
+                type: 'list',
+                name: 'role',
+                message: "Please enter the employee's role:",
+                choices: [1],
+            },
+            {
+                type: 'list',
+                name: 'manager',
+                message: "Please enter the employee's manager:",
+                choices: [1],
+            },
+        ])
+        .then((response) => {
+            addEmployee(response);
+        });
 };
 
 // Update employee role
@@ -68,31 +145,26 @@ const quit = () => {
     process.exit();
 };
 
-// Connect to database
-db.connect((err) => {
-    if (err) throw err;
-    console.log('Database connected.');
-});
-
 const initialize = () => {
     initialPrompt().then((userChoice) => {
         switch (userChoice.mainMenuChoice) {
             case 'View all departments':
-                viewDeps();
+                viewDepartments();
+                return initialize();
             case 'View all roles':
                 viewRoles();
-                break;
+                return initialize();
             case 'View all employees':
                 viewEmployees();
-                break;
+                return initialize();
             case 'Add a department':
-                addDep();
+                addDepartmentPrompt();
                 break;
             case 'Add a role':
-                addRole();
+                addRolePrompt();
                 break;
             case 'Add an employee':
-                addEmployee();
+                addEmployeePrompt();
                 break;
             case 'Update an employee role':
                 updateRole();
