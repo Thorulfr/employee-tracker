@@ -100,7 +100,6 @@ const initialize = () => {
                 break;
             case 'Quit':
                 quit();
-                break;
         }
     });
 };
