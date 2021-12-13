@@ -16,6 +16,7 @@ const initialPrompt = () => {
                 'Add a role',
                 'Add an employee',
                 'Update an employee role',
+                'Quit',
             ],
         })
         .then((userChoice) => {
@@ -59,6 +60,11 @@ const updateRole = () => {
     console.log('Update an employee role');
 };
 
+// Quit
+const quit = () => {
+    console.log('Logging you out. Have a wonderful day!');
+};
+
 initialPrompt().then((userChoice) => {
     switch (userChoice.mainMenuChoice) {
         case 'View all departments':
@@ -81,6 +87,9 @@ initialPrompt().then((userChoice) => {
             break;
         case 'Update an employee role':
             updateRole();
+            break;
+        case 'Quit':
+            quit();
             break;
     }
 });
