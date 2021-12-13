@@ -2,6 +2,7 @@
 require('dotenv').config();
 const inquirer = require('inquirer');
 const db = require('./db/connection');
+const { getDeps, getRoles, getEmployees } = require('./jsModules/getters');
 
 // Main menu/Initial prompt
 const initialPrompt = () => {
@@ -22,25 +23,23 @@ const initialPrompt = () => {
             ],
         })
         .then((userChoice) => {
-            console.log(userChoice);
             return userChoice;
         });
 };
 
 // View all departments
 const viewDeps = () => {
-    console.log('View all departments');
-    return initialize();
+    getDeps();
 };
 
 // View all roles
 const viewRoles = () => {
-    console.log('View all roles');
+    getRoles();
 };
 
 // View all employees
 const viewEmployees = () => {
-    console.log('View all employees');
+    getEmployees();
 };
 
 // Add a department
