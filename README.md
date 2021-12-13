@@ -40,6 +40,7 @@ THEN I am prompted to select an employee to update and their new role and this i
 -   Node.js
 -   Inquirer
 -   console.table
+-   dotenv
 
 ## Website
 
