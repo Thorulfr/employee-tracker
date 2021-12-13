@@ -1,6 +1,7 @@
 // Imports
 require('dotenv').config();
 const inquirer = require('inquirer');
+const db = require('./db/connection');
 
 // Main menu/Initial prompt
 const initialPrompt = () => {
@@ -29,6 +30,7 @@ const initialPrompt = () => {
 // View all departments
 const viewDeps = () => {
     console.log('View all departments');
+    return initialize();
 };
 
 // View all roles
@@ -64,33 +66,43 @@ const updateRole = () => {
 // Quit
 const quit = () => {
     console.log('Logging you out. Have a wonderful day!');
+    process.exit();
 };
 
-initialPrompt().then((userChoice) => {
-    switch (userChoice.mainMenuChoice) {
-        case 'View all departments':
-            viewDeps();
-            break;
-        case 'View all roles':
-            viewRoles();
-            break;
-        case 'View all employees':
-            viewEmployees();
-            break;
-        case 'Add a department':
-            addDep();
-            break;
-        case 'Add a role':
-            addRole();
-            break;
-        case 'Add an employee':
-            addEmployee();
-            break;
-        case 'Update an employee role':
-            updateRole();
-            break;
-        case 'Quit':
-            quit();
-            break;
-    }
+// Connect to database
+db.connect((err) => {
+    if (err) throw err;
+    console.log('Database connected.');
 });
+
+const initialize = () => {
+    initialPrompt().then((userChoice) => {
+        switch (userChoice.mainMenuChoice) {
+            case 'View all departments':
+                viewDeps();
+            case 'View all roles':
+                viewRoles();
+                break;
+            case 'View all employees':
+                viewEmployees();
+                break;
+            case 'Add a department':
+                addDep();
+                break;
+            case 'Add a role':
+                addRole();
+                break;
+            case 'Add an employee':
+                addEmployee();
+                break;
+            case 'Update an employee role':
+                updateRole();
+                break;
+            case 'Quit':
+                quit();
+                break;
+        }
+    });
+};
+
+initialize();
