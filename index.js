@@ -149,12 +149,35 @@ const addEmployeePrompt = () => {
             {
                 type: 'list',
                 name: 'manager',
-                message: "Please enter the employee's manager:",
+                message: "Please select the employee's manager:",
                 choices: employees,
             },
         ])
         .then((response) => {
             addEmployee(response);
+        });
+};
+
+// Update employee role prompt
+const updateEmployeeRolePrompt = () => {
+    return inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'employee',
+                message:
+                    "Please select the employee whose role you'd like to update:",
+                choices: employees,
+            },
+            {
+                type: 'list',
+                name: 'role',
+                message: "Please select the employee's new role:",
+                choices: roles,
+            },
+        ])
+        .then((response) => {
+            updateEmployeeRole(response);
         });
 };
 
@@ -172,7 +195,7 @@ const getDepartments = () => {
 
 // Get roles
 const getRoles = () => {
-    const sql = `SELECT * FROM roles`;
+    const sql = `SELECT roles.id, job_title, salary, departments.name AS department FROM roles LEFT JOIN departments ON roles.dep_id = departments.id;`;
     db.query(sql, (err, rows) => {
         if (err) {
             console.error(err);
@@ -184,7 +207,7 @@ const getRoles = () => {
 
 // Get employees
 const getEmployees = () => {
-    const sql = `SELECT * FROM employees`;
+    const sql = `SELECT emp.id, emp.first_name, emp.last_name, roles.job_title, CONCAT(man.first_name, " ", man.last_name) AS manager_name FROM employees AS emp LEFT JOIN roles ON emp.role_id = roles.id LEFT JOIN employees AS man ON emp.manager_id = man.id;`;
     db.query(sql, (err, rows) => {
         if (err) {
             console.error(err);
@@ -242,8 +265,18 @@ const addEmployee = (employeeObject) => {
 };
 
 // Update employee role
-const updateRole = () => {
-    console.log('Update an employee role');
+const updateEmployeeRole = (employeeObject) => {
+    const sql = `UPDATE employees SET role_id = ? WHERE id = ?`;
+    const params = [employeeObject.role, employeeObject.employee];
+    console.log(params);
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log('Employee role updated successfully');
+        initialize();
+    });
 };
 
 // Quit
@@ -277,7 +310,7 @@ const initialize = () => {
                 addEmployeePrompt();
                 break;
             case 'Update an employee role':
-                updateRole();
+                updateEmployeeRolePrompt();
                 break;
             case 'Quit':
                 quit();
