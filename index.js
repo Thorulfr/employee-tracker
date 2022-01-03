@@ -183,6 +183,7 @@ const updateEmployeeRolePrompt = () => {
 
 // Get departments
 const getDepartments = () => {
+    // const sql = `SELECT d.id, d.name, SUM(r.salary) AS department_expenses FROM departments d LEFT JOIN roles r ON r.dep_id = d.id GROUP BY d.id;`;
     const sql = `SELECT * FROM departments`;
     db.query(sql, (err, rows) => {
         if (err) {
@@ -268,7 +269,6 @@ const addEmployee = (employeeObject) => {
 const updateEmployeeRole = (employeeObject) => {
     const sql = `UPDATE employees SET role_id = ? WHERE id = ?`;
     const params = [employeeObject.role, employeeObject.employee];
-    console.log(params);
     db.query(sql, params, (err, result) => {
         if (err) {
             console.error(err);
