@@ -8,7 +8,6 @@ const db = mysql.createConnection(
         user: process.env.DB_USER,
         password: process.env.DB_PW,
         database: process.env.DB_NAME,
-        rowsAsArray: true,
     },
     console.log('Connected to the employee database!')
 );

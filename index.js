@@ -2,26 +2,66 @@
 require('dotenv').config();
 const inquirer = require('inquirer');
 const db = require('./db/connection');
-const {
-    getDepartments,
-    getRoles,
-    getEmployees,
-} = require('./jsModules/getters');
-const { addDepartment, addRole, addEmployee } = require('./jsModules/posters');
-const employeeRoles = [
-    'CEO',
-    'COO',
-    'Head of Development',
-    'HR Head',
-    'Hiring Manager',
-    'Arbitrator',
-    'HTML/CSS Senior Dev',
-    'HTML/CSS Junior Dev',
-    'JS/Express Senior Dev',
-    'JS/Express Junior Dev',
-    'System Administrator',
-    'Network Administrator',
-];
+
+// Declarations
+let departments = [];
+let roles = [];
+let employees = [];
+
+// Initial getters for prompts
+// Get departments
+const getDepartmentsInitial = () => {
+    const sql = `SELECT * FROM departments`;
+    db.query(sql, (err, rows) => {
+        if (err) {
+            console.error(err);
+        }
+        let tempArray = [];
+        for (let i = 0; i < rows.length; i++) {
+            let tempObject = {};
+            tempObject.value = rows[i].id;
+            tempObject.name = rows[i].name;
+            tempArray.push(tempObject);
+        }
+        departments = tempArray;
+    });
+};
+
+// Get roles
+const getRolesInitial = () => {
+    const sql = `SELECT * FROM roles`;
+    db.query(sql, (err, rows) => {
+        if (err) {
+            console.error(err);
+        }
+        let tempArray = [];
+        for (let i = 0; i < rows.length; i++) {
+            let tempObject = {};
+            tempObject.value = rows[i].id;
+            tempObject.name = rows[i].job_title;
+            tempArray.push(tempObject);
+        }
+        roles = tempArray;
+    });
+};
+
+// Get employees
+const getEmployeesInitial = () => {
+    const sql = `SELECT * FROM employees`;
+    db.query(sql, (err, rows) => {
+        if (err) {
+            console.error(err);
+        }
+        let tempArray = [];
+        for (let i = 0; i < rows.length; i++) {
+            let tempObject = {};
+            tempObject.value = rows[i].id;
+            tempObject.name = rows[i].first_name + ' ' + rows[i].last_name;
+            tempArray.push(tempObject);
+        }
+        employees = tempArray;
+    });
+};
 
 // Main menu/Initial prompt
 const initialPrompt = () => {
@@ -46,23 +86,8 @@ const initialPrompt = () => {
         });
 };
 
-// View all departments
-const viewDepartments = () => {
-    getDepartments();
-};
-
-// View all roles
-const viewRoles = () => {
-    getRoles();
-};
-
-// View all employees
-const viewEmployees = () => {
-    getEmployees();
-};
-
-// Add a department
-const addDepartmentPrompt = () => {
+// Add department prompt
+const addDepartmentPrompt = (callback) => {
     return inquirer
         .prompt({
             type: 'input',
@@ -70,11 +95,11 @@ const addDepartmentPrompt = () => {
             message: 'Please enter the name of the department:',
         })
         .then((response) => {
-            addDepartment(response);
+            addDepartment(response, callback);
         });
 };
 
-// Add a role
+// Add role prompt
 const addRolePrompt = () => {
     return inquirer
         .prompt([
@@ -93,16 +118,15 @@ const addRolePrompt = () => {
                 name: 'department',
                 message:
                     'Please select the department to which the role belongs:',
-                choices: [1],
+                choices: departments,
             },
         ])
         .then((response) => {
-            console.log(response);
             addRole(response);
         });
 };
 
-// Add an employee
+// Add employee prompt
 const addEmployeePrompt = () => {
     return inquirer
         .prompt([
@@ -120,18 +144,101 @@ const addEmployeePrompt = () => {
                 type: 'list',
                 name: 'role',
                 message: "Please enter the employee's role:",
-                choices: [1],
+                choices: roles,
             },
             {
                 type: 'list',
                 name: 'manager',
                 message: "Please enter the employee's manager:",
-                choices: [1],
+                choices: employees,
             },
         ])
         .then((response) => {
             addEmployee(response);
         });
+};
+
+// Get departments
+const getDepartments = () => {
+    const sql = `SELECT * FROM departments`;
+    db.query(sql, (err, rows) => {
+        if (err) {
+            console.error(err);
+        }
+        console.table(rows);
+        initialize();
+    });
+};
+
+// Get roles
+const getRoles = () => {
+    const sql = `SELECT * FROM roles`;
+    db.query(sql, (err, rows) => {
+        if (err) {
+            console.error(err);
+        }
+        console.table(rows);
+        initialize();
+    });
+};
+
+// Get employees
+const getEmployees = () => {
+    const sql = `SELECT * FROM employees`;
+    db.query(sql, (err, rows) => {
+        if (err) {
+            console.error(err);
+        }
+        console.table(rows);
+        initialize();
+    });
+};
+
+// Add a department
+const addDepartment = (departmentObject) => {
+    const sql = `INSERT INTO departments (name) VALUES (?)`;
+    const params = [departmentObject.name];
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log('Department added successfully');
+        initialize();
+    });
+};
+
+// Add a role
+const addRole = (roleObject) => {
+    const sql = `INSERT INTO roles (job_title, salary, dep_id) VALUES (?,?,?)`;
+    const params = [roleObject.name, roleObject.salary, roleObject.department];
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log('Role added successfully');
+        initialize();
+    });
+};
+
+// Add an employee
+const addEmployee = (employeeObject) => {
+    const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
+    const params = [
+        employeeObject.firstName,
+        employeeObject.lastName,
+        employeeObject.role,
+        employeeObject.manager,
+    ];
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log('Employee added successfully');
+        initialize();
+    });
 };
 
 // Update employee role
@@ -146,17 +253,20 @@ const quit = () => {
 };
 
 const initialize = () => {
+    getDepartmentsInitial();
+    getRolesInitial();
+    getEmployeesInitial();
     initialPrompt().then((userChoice) => {
         switch (userChoice.mainMenuChoice) {
             case 'View all departments':
-                viewDepartments();
-                return initialize();
+                getDepartments();
+                break;
             case 'View all roles':
-                viewRoles();
-                return initialize();
+                getRoles();
+                break;
             case 'View all employees':
-                viewEmployees();
-                return initialize();
+                getEmployees();
+                break;
             case 'Add a department':
                 addDepartmentPrompt();
                 break;
